@@ -16,18 +16,21 @@ public class Spawner {
     private ArrayList<Floater> spawnList;
     private float spawnTimer;
     private float spawnTime;
+    private boolean spawnEnabled;
 
     public Spawner() {
         rng = new Random();
         spawnList = new ArrayList<Floater>();
         spawnTime = Constants.SPAWN_TIME_START;
         spawnTimer = 0;
+        spawnEnabled = true;
     }
 
     public void reset() {
         spawnList.clear();
         spawnTime = Constants.SPAWN_TIME_START;
         spawnTimer = 0;
+        spawnEnabled = true;
     }
 
     public void update(float delta) {
@@ -42,7 +45,9 @@ public class Spawner {
             if (spawnTime > Constants.SPAWN_TIME_CAP) {
                 spawnTime -= Constants.SPAWN_TIME_PROGRESSION;
             }
-            spawnRandom();
+            if (spawnEnabled) {
+                spawnRandom();
+            }
         }
 
         Iterator<Floater> iter = spawnList.iterator();
@@ -50,6 +55,7 @@ public class Spawner {
             Floater floater = iter.next();
             floater.update(delta, extraSpeedY);
             if (floater.getY() > Constants.GAME_START_Y + Constants.GAME_HEIGHT + Constants.SPAWN_MARGIN) {
+                floater.die();
                 iter.remove();
             }
         }
@@ -108,5 +114,13 @@ public class Spawner {
 
     public ArrayList<Floater> getSpawnList() {
         return spawnList;
+    }
+
+    public boolean getSpawnEnabled() {
+        return spawnEnabled;
+    }
+
+    public void setSpawnEnabled(boolean spawnEnabled) {
+        this.spawnEnabled = spawnEnabled;
     }
 }

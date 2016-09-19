@@ -24,16 +24,16 @@ public class Constants {
     public final static int SHORT_LOG_WIDTH = 24;
     public final static int LONG_LOG_WIDTH = 36;
     public final static int LOG_HEIGHT = 9;
-    public final static int BABY_CUB_SIZE = 8;
+    public final static int BABY_CUB_SIZE = 12;
     public final static int SCORE_LINE_HEIGHT = 222;
 
     public final static float RESISTANCE = 0.98f;
     public final static float LA_FORCE_A = 32;
     public final static float LA_FORCE_B = 40;
     public final static float LA_FORCE_C = 24;
-    public final static float LA_BACK_FORCE_A = - 16;
-    public final static float LA_BACK_FORCE_B = - 20;
-    public final static float LA_BACK_FORCE_C = - 12;
+    public final static float LA_BACK_FORCE_A = -16;
+    public final static float LA_BACK_FORCE_B = -20;
+    public final static float LA_BACK_FORCE_C = -12;
     public final static float AA_FORCE_A = 16;
     public final static float AA_FORCE_B = 20;
     public final static float AA_FORCE_C = 12;
@@ -49,15 +49,31 @@ public class Constants {
     public final static float FASTFORWARD_START = 0.2f;
     public final static float FASTFORWARD_END = 0.8f;
 
-    public final static float SPAWN_SCROLL_RANGE_Y = 6;
     public final static float SPAWN_SCROLL_MIN_Y = 22;
+    public final static float SPAWN_SCROLL_RANGE_Y = 6;
     public final static float SPAWN_TIME_START = 7;
     public final static float SPAWN_TIME_PROGRESSION = 0.1f;
     public final static float SPAWN_TIME_CAP = 3;
     public final static float SPAWN_CUB_CHANCE = 0.2f;
     public final static int SPAWN_MARGIN = 30;
 
-    public static boolean IS_INVINCIBLE = false;
+    public final static boolean IS_INVINCIBLE = false;
     public static boolean SHOW_DEBUG = false;
+
+    public final static int PARTICLE_POOL_SIZE = 16;
+
+    public final static int PLAY_BUTTON_OFFSET_Y = -18;
+    public final static int SHOP_BUTTON_OFFSET_Y = -6;
+    public final static int RESTART_BUTTON_OFFSET_Y = 16;
+    public final static int POST_BUTTON_OFFSET_Y = 38;
+    public final static int POST_MENU_OFFSET_Y = -72;
+
+    public final static int POST_MENU_FIELD_OFFSET_X = -23;
+    public final static int POST_MENU_STAT_OFFSET_X = 23;
+    public final static int POST_MENU_SCORE_OFFSET_Y = -60;
+    public final static int POST_MENU_BEST_OFFSET_Y = -44;
+    public final static int POST_MENU_CUB_OFFSET_Y = -28;
+
+    public final static float END_GAME_TIME = 2;
 
 }

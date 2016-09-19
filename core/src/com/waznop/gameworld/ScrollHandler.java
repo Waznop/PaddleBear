@@ -37,7 +37,7 @@ public class ScrollHandler {
     }
 
     public void reset() {
-        river.reset();
+        // river.reset();
         land.reset();
         sand.reset();
         scoreLine.reset();

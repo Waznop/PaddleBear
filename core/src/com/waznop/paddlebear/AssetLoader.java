@@ -3,10 +3,7 @@ package com.waznop.paddlebear;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
+import com.badlogic.gdx.graphics.g2d.*;
 
 /**
  * Created by Waznop on 2016-08-22.
@@ -61,9 +58,24 @@ public class AssetLoader {
     public static TextureRegion dying12;
     public static Animation dyingAnimation;
 
+    public static TextureRegion playButtonUp;
+    public static TextureRegion playButtonDown;
+    public static TextureRegion shopButtonUp;
+    public static TextureRegion shopButtonDown;
+    public static TextureRegion postButtonUp;
+    public static TextureRegion postButtonDown;
+    public static TextureRegion restartButtonUp;
+    public static TextureRegion restartButtonDown;
+    public static TextureRegion postGameMenu;
+    public static TextureRegion bearCubIcon;
+
     public static Preferences data;
 
     public static BitmapFont font;
+
+    public static ParticleEffect bearTrail;
+    public static ParticleEffect rectTrail;
+    public static ParticleEffectPool particlePool;
 
     public static void load() {
         spriteSheet = new Texture(Gdx.files.internal("spriteSheet.png"));
@@ -168,8 +180,29 @@ public class AssetLoader {
                 dying7, dying8, dying9, dying10, dying11, dying12};
         dyingAnimation = new Animation(0.05f, dying);
 
+        postGameMenu = new TextureRegion(spriteSheet, 16, 0, 23, 51);
+        postGameMenu.flip(false, true);
+        playButtonUp = new TextureRegion(spriteSheet, 16, 51, 23, 15);
+        playButtonUp.flip(false, true);
+        playButtonDown = new TextureRegion(spriteSheet, 39, 60, 23, 15);
+        playButtonDown.flip(false, true);
+        restartButtonUp = new TextureRegion(spriteSheet, 39, 0, 19, 9);
+        restartButtonUp.flip(false, true);
+        restartButtonDown = new TextureRegion(spriteSheet, 39, 9, 19, 9);
+        restartButtonDown.flip(false, true);
+        shopButtonUp = new TextureRegion(spriteSheet, 39, 18, 19, 9);
+        shopButtonUp.flip(false, true);
+        shopButtonDown = new TextureRegion(spriteSheet, 39, 27, 19, 9);
+        shopButtonDown.flip(false, true);
+        postButtonUp = new TextureRegion(spriteSheet, 39, 36, 19, 9);
+        postButtonUp.flip(false, true);
+        postButtonDown = new TextureRegion(spriteSheet, 39, 45, 19, 9);
+        postButtonDown.flip(false, true);
+        bearCubIcon = new TextureRegion(spriteSheet, 39, 54, 7, 6);
+        bearCubIcon.flip(false, true);
+
         font = new BitmapFont(Gdx.files.internal("font.fnt"));
-        font.getData().setScale(0.6f, -0.6f);
+        font.getData().setScale(0.5f, -0.5f);
 
         data = Gdx.app.getPreferences("gameData");
 
@@ -180,6 +213,16 @@ public class AssetLoader {
         if (! data.contains("karma")) {
             data.putInteger("karma", 0);
         }
+
+        bearTrail = new ParticleEffect();
+        bearTrail.load(Gdx.files.internal("bearTrail.p"), Gdx.files.internal(""));
+
+        rectTrail = new ParticleEffect();
+        rectTrail.load(Gdx.files.internal("rectTrail.p"), Gdx.files.internal(""));
+
+        particlePool = new ParticleEffectPool(rectTrail,
+                Constants.PARTICLE_POOL_SIZE, Constants.PARTICLE_POOL_SIZE);
+
     }
 
     public static void dispose() {
@@ -187,6 +230,8 @@ public class AssetLoader {
         riverSheet.dispose();
         landSheet.dispose();
         font.dispose();
+        bearTrail.dispose();
+        rectTrail.dispose();
     }
 
 }

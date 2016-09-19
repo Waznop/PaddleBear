@@ -1,12 +1,13 @@
 package com.waznop.gameworld;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.waznop.gameobjects.Bear;
 import com.waznop.gameobjects.Floater;
 import com.waznop.paddlebear.AssetLoader;
 import com.waznop.paddlebear.Constants;
+import com.waznop.gameobjects.SimpleButton;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,9 +24,18 @@ public class GameWorld {
     private Spawner spawner;
     private Preferences data;
     private int karma;
+    private int deltaKarma;
     private int highScore;
 
-    private GameState currentState;
+    private ArrayList<SimpleButton> activeButtons;
+    private SimpleButton playButton;
+    private SimpleButton shopButton;
+    private SimpleButton restartButton;
+    private SimpleButton postButton;
+
+    private GameStateEnum currentState;
+
+    private float endGameTimer;
 
     public GameWorld() {
         bear = new Bear(
@@ -35,28 +45,76 @@ public class GameWorld {
                 Constants.BEAR_SIZE);
         scrollHandler = new ScrollHandler(this);
         score = 0;
-        currentState = GameState.PLAYING;
+        currentState = GameStateEnum.MENU;
         fastforwarding = false;
         spawner = new Spawner();
 
         data = AssetLoader.data;
         karma = data.getInteger("karma");
+        deltaKarma = 0;
         highScore = data.getInteger("highScore");
+
+        TextureRegion playButtonUp = AssetLoader.playButtonUp;
+        TextureRegion shopButtonUp = AssetLoader.shopButtonUp;
+        TextureRegion restartButtonUp = AssetLoader.restartButtonUp;
+        TextureRegion postButtonUp = AssetLoader.postButtonUp;
+
+        playButton = new SimpleButton(ButtonTypeEnum.PLAY,
+                Constants.GAME_MID_X - playButtonUp.getRegionWidth() * 1.5f,
+                Constants.GAME_MID_Y + Constants.PLAY_BUTTON_OFFSET_Y,
+                playButtonUp.getRegionWidth() * 3, playButtonUp.getRegionHeight() * 3,
+                playButtonUp, AssetLoader.playButtonDown
+        );
+
+        shopButton = new SimpleButton(ButtonTypeEnum.SHOP,
+                Constants.GAME_MID_X - shopButtonUp.getRegionWidth() * 1.2f,
+                Constants.GAME_MID_Y + Constants.SHOP_BUTTON_OFFSET_Y,
+                shopButtonUp.getRegionWidth() * 2.4f, shopButtonUp.getRegionHeight() * 2,
+                shopButtonUp, AssetLoader.shopButtonDown
+        );
+
+        restartButton = new SimpleButton(ButtonTypeEnum.PLAY,
+                Constants.GAME_MID_X - restartButtonUp.getRegionWidth() * 1.2f,
+                Constants.GAME_MID_Y + Constants.RESTART_BUTTON_OFFSET_Y,
+                restartButtonUp.getRegionWidth() * 2.4f, restartButtonUp.getRegionHeight() * 2,
+                restartButtonUp, AssetLoader.restartButtonDown
+        );
+
+        postButton = new SimpleButton(ButtonTypeEnum.POST,
+                Constants.GAME_MID_X - postButtonUp.getRegionWidth() * 1.2f,
+                Constants.GAME_MID_Y + Constants.POST_BUTTON_OFFSET_Y,
+                postButtonUp.getRegionWidth() * 2.4f, postButtonUp.getRegionHeight() * 2,
+                postButtonUp, AssetLoader.postButtonDown
+        );
+
+        activeButtons = new ArrayList<SimpleButton>();
+        activeButtons.add(playButton);
+
+        endGameTimer = 0;
+
+        /*
+        startGame();
+        endGame();
+        showPostMenu();
+        */
     }
 
-    public void reset() {
-        currentState = GameState.PLAYING;
+    public void startGame() {
+        currentState = GameStateEnum.PLAYING;
         score = 0;
+        deltaKarma = 0;
         bear.reset(Constants.GAME_MID_X - Constants.BEAR_SIZE / 2,
                 Constants.GAME_MID_Y - Constants.BEAR_SIZE / 2);
         scrollHandler.reset();
         fastforwarding = false;
         spawner.reset();
+        activeButtons.clear();
     }
 
     public void update(float delta, float runTime) {
         switch(currentState) {
             case MENU:
+                updateIdle(delta);
                 break;
             case PLAYING:
                 updatePlaying(delta);
@@ -64,15 +122,25 @@ public class GameWorld {
             case GAMEOVER:
                 updateGameover(delta);
                 break;
-            case HIGHSCORE:
+            case POSTMENU:
+                updateIdle(delta);
+                bear.updateGameover(delta);
                 break;
         }
     }
 
-    public void updateGameover(float delta) {
-        bear.updateGameover(delta);
+    public void updateIdle(float delta) {
         scrollHandler.update(delta, - Constants.LAND_SCROLL_Y);
         spawner.update(delta, - Constants.LAND_SCROLL_Y);
+    }
+
+    public void updateGameover(float delta) {
+        endGameTimer -= delta;
+        if (endGameTimer <= 0) {
+            showPostMenu();
+        }
+        updateIdle(delta);
+        bear.updateGameover(delta);
     }
 
     public void updatePlaying(float delta) {
@@ -82,9 +150,13 @@ public class GameWorld {
         if (centerY < Constants.GAME_START_Y + Constants.GAME_HEIGHT * Constants.FASTFORWARD_START
                 && ! fastforwarding) {
             fastforwarding = true;
+            bear.getEmitter().getLife().setHigh(0);
+            bear.getEmitter().setAttached(true);
         } else if (centerY > Constants.GAME_START_Y + Constants.GAME_HEIGHT * Constants.FASTFORWARD_END
                 && fastforwarding) {
             fastforwarding = false;
+            bear.getEmitter().getLife().setHigh(1000);
+            bear.getEmitter().setAttached(false);
         }
 
         if (fastforwarding) {
@@ -112,6 +184,7 @@ public class GameWorld {
             if (Intersector.overlapConvexPolygons(floater.getCollider(), bear.getCollider())) {
                 if (floater.getType() == FloaterEnum.BABYCUB) {
                     addToKarma(1);
+                    floater.die();
                     iter.remove();
                 } else {
                     if (! bear.getIsInvincible()) {
@@ -124,12 +197,21 @@ public class GameWorld {
     }
 
     private void endGame() {
-        currentState = GameState.GAMEOVER;
+        endGameTimer = Constants.END_GAME_TIME;
+        spawner.setSpawnEnabled(false);
         bear.die();
         saveKarma();
         if (score > highScore) {
             setHighScore(score);
         }
+        currentState = GameStateEnum.GAMEOVER;
+    }
+
+    public void showPostMenu() {
+        currentState = GameStateEnum.POSTMENU;
+        activeButtons.add(shopButton);
+        activeButtons.add(restartButton);
+        activeButtons.add(postButton);
     }
 
     public int addToScore(int increment) {
@@ -137,6 +219,7 @@ public class GameWorld {
     }
 
     public int addToKarma(int increment) {
+        deltaKarma += increment;
         return karma += increment;
     }
 
@@ -147,6 +230,10 @@ public class GameWorld {
 
     public int getKarma() {
         return karma;
+    }
+
+    public int getDeltaKarma() {
+        return deltaKarma;
     }
 
     public void setHighScore(int highScore) {
@@ -171,7 +258,7 @@ public class GameWorld {
         return score;
     }
 
-    public GameState getCurrentState() {
+    public GameStateEnum getCurrentState() {
         return currentState;
     }
 
@@ -179,8 +266,12 @@ public class GameWorld {
         return spawner;
     }
 
+    public ArrayList<SimpleButton> getActiveButtons() {
+        return activeButtons;
+    }
+
     public void toggleInvincibility() {
-        Constants.IS_INVINCIBLE = ! Constants.IS_INVINCIBLE;
+        bear.setIsInvincible(! bear.getIsInvincible());
     }
 
     public void toggleDebug() {

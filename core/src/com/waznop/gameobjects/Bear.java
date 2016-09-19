@@ -1,8 +1,12 @@
 package com.waznop.gameobjects;
 
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.waznop.paddlebear.AssetLoader;
 import com.waznop.paddlebear.Constants;
+import com.waznop.paddlebear.HelperFunctions;
 
 /**
  * Created by Waznop on 2016-08-17.
@@ -29,6 +33,9 @@ public class Bear {
     private boolean isAlive;
     private float dyingTimer;
     private boolean isInvincible;
+
+    private Vector2 trailPosition;
+    private ParticleEffect trail;
 
     public Bear(float x, float y, int width, int height) {
 
@@ -57,11 +64,16 @@ public class Bear {
         dyingTimer = 0;
         isInvincible = Constants.IS_INVINCIBLE;
 
+        trailPosition = new Vector2(x + halfWidth, y);
+        trail = AssetLoader.bearTrail;
+        trail.start();
+
     }
 
     public void reset(float x, float y) {
         rotation = 0;
         position.set(x, y);
+        trailPosition.set(x + width / 2, y);
         lv = 0;
         av = 0;
         la = 0;
@@ -71,11 +83,16 @@ public class Bear {
         paddlingFront = true;
         isAlive = true;
         dyingTimer = 0;
+        trail.reset();
+        getEmitter().getLife().setHigh(1000);
+        getEmitter().setAttached(false);
     }
 
     public void updateGameover(float delta) {
         position.y += (Constants.BOAT_SCROLL_Y - Constants.LAND_SCROLL_Y) * delta;
+        trailPosition.y += (Constants.BOAT_SCROLL_Y - Constants.LAND_SCROLL_Y) * delta;
         dyingTimer += delta;
+        trail.update(delta);
     }
 
     public void updatePlaying(float delta) {
@@ -121,6 +138,21 @@ public class Bear {
         collider.setPosition(position.x, position.y);
         collider.setRotation(rotation);
 
+        float centerX = getCenterX();
+        float centerY = getCenterY();
+        trailPosition.set(centerX, position.y);
+        HelperFunctions.rotateAtPoint(trailPosition, centerX, centerY, (float) Math.toRadians(rotation));
+
+        if (ds > 0) {
+            trail.setPosition(trailPosition.x, trailPosition.y);
+        } else {
+            trail.setPosition(centerX, centerY);
+        }
+
+        getEmitter().getRotation().setHigh(rotation);
+
+        trail.update(delta);
+
     }
 
     public void onPaddleFrontLeft() {
@@ -153,6 +185,11 @@ public class Bear {
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = false;
         paddlingFront = false;
+    }
+
+    public void die() {
+        isAlive = false;
+        trail.allowCompletion();
     }
 
     public float getX() {
@@ -203,10 +240,6 @@ public class Bear {
         return collider;
     }
 
-    public void die() {
-        isAlive = false;
-    }
-
     public boolean getIsAlive() {
         return isAlive;
     }
@@ -217,5 +250,25 @@ public class Bear {
 
     public boolean getIsInvincible() {
         return isInvincible;
+    }
+
+    public void setIsInvincible(boolean isInvincible) {
+        this.isInvincible = isInvincible;
+    }
+
+    public ParticleEffect getTrail() {
+        return trail;
+    }
+
+    public ParticleEmitter getEmitter() {
+        return trail.getEmitters().first();
+    }
+
+    public float getTrailX() {
+        return trailPosition.x;
+    }
+
+    public float getTrailY() {
+        return trailPosition.y;
     }
 }

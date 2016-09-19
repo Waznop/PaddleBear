@@ -3,16 +3,14 @@ package com.waznop.gameworld;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.waznop.gameobjects.Bear;
 import com.waznop.gameobjects.Floater;
 import com.waznop.gameobjects.Scrollable;
+import com.waznop.gameobjects.SimpleButton;
 import com.waznop.paddlebear.AssetLoader;
 import com.waznop.paddlebear.Constants;
 import com.waznop.paddlebear.InputHandler;
@@ -49,6 +47,9 @@ public class GameRenderer {
     private TextureRegion backgroundLand;
     private TextureRegion backgroundSand;
     private Animation backgroundRiver;
+
+    private TextureRegion postGameMenu;
+    private TextureRegion babyCubIcon;
 
     private Animation shortLog;
     private Animation longLog;
@@ -96,6 +97,8 @@ public class GameRenderer {
         longLog = AssetLoader.longLogAnimation;
         babyCub = AssetLoader.babyCubAnimation;
         dying = AssetLoader.dyingAnimation;
+        postGameMenu = AssetLoader.postGameMenu;
+        babyCubIcon = AssetLoader.bearCubIcon;
         font = AssetLoader.font;
     }
 
@@ -130,6 +133,7 @@ public class GameRenderer {
         ArrayList<Floater> spawnList = spawner.getSpawnList();
         for (int i = 0; i < spawnList.size(); ++i) {
             Floater floater = spawnList.get(i);
+            floater.getTrail().draw(batcher);
             switch(floater.getType()) {
                 case SHORTLOG:
                     batcher.draw(shortLog.getKeyFrame(runTime),
@@ -177,7 +181,10 @@ public class GameRenderer {
                     (paddlingLeft ? paddlingLeft1 : paddlingRight1);
         }
 
-        batcher.draw(image, bear.getX(), bear.getY(), w / 2f, h / 2f, w, h, 1, 1, bear.getRotation());
+
+        bear.getTrail().draw(batcher);
+
+        batcher.draw(image, bear.getX(), bear.getY(), w / 2, h / 2, w, h, 1, 1, bear.getRotation());
 
         for (Vector2 position : land.getPositions()) {
             batcher.draw(backgroundLand,
@@ -185,17 +192,56 @@ public class GameRenderer {
                     land.getWidth(), land.getHeight());
         }
 
-        String score = "Score: " + world.getScore();
-        font.draw(batcher, score,
-                10, Constants.GAME_START_Y + 10);
+        switch(world.getCurrentState()) {
+            case POSTMENU:
+                font.setColor(85/255f, 50/255f, 7/255f, 1);
+                batcher.draw(postGameMenu,
+                        Constants.GAME_MID_X - postGameMenu.getRegionWidth() * 1.5f,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_OFFSET_Y,
+                        postGameMenu.getRegionWidth() * 3, postGameMenu.getRegionHeight() * 3);
 
-        String highScore = "Best: " + world.getHighScore();
-        font.draw(batcher, highScore,
-                10, Constants.GAME_START_Y + 20);
+                font.draw(batcher, "Score",
+                        Constants.GAME_MID_X + Constants.POST_MENU_FIELD_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_SCORE_OFFSET_Y);
+                font.draw(batcher, "" + world.getScore(),
+                        Constants.GAME_MID_X + Constants.POST_MENU_STAT_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_SCORE_OFFSET_Y,
+                        0, 4, false);
 
-        String karma = "Karma: " + world.getKarma();
-        font.draw(batcher, karma,
-                10, Constants.GAME_START_Y + 30);
+                font.draw(batcher, "Best",
+                        Constants.GAME_MID_X + Constants.POST_MENU_FIELD_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_BEST_OFFSET_Y);
+                font.draw(batcher, "" + world.getHighScore(),
+                        Constants.GAME_MID_X + Constants.POST_MENU_STAT_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_BEST_OFFSET_Y,
+                        0, 4, false);
+
+                batcher.draw(babyCubIcon,
+                        Constants.GAME_MID_X + Constants.POST_MENU_FIELD_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_CUB_OFFSET_Y - 2,
+                        babyCubIcon.getRegionWidth() * 2, babyCubIcon.getRegionHeight() * 2);
+                font.draw(batcher, world.getKarma() + " (" + world.getDeltaKarma() + ")",
+                        Constants.GAME_MID_X + Constants.POST_MENU_STAT_OFFSET_X,
+                        Constants.GAME_MID_Y + Constants.POST_MENU_CUB_OFFSET_Y,
+                        0, 4, false);
+                font.setColor(1, 1, 1, 1);
+                break;
+            case PLAYING:
+            case GAMEOVER:
+                font.draw(batcher, "Score: " + world.getScore(),
+                        10, Constants.GAME_START_Y + 10);
+                font.draw(batcher, "+ " + world.getDeltaKarma(),
+                        Constants.SCREEN_WIDTH - 22, Constants.GAME_START_Y + 10,
+                        0, 4, false);
+                batcher.draw(babyCubIcon,
+                        Constants.SCREEN_WIDTH - 20, Constants.GAME_START_Y + 10,
+                        babyCubIcon.getRegionWidth() * 1.3f, babyCubIcon.getRegionHeight() * 1.3f);
+                break;
+        }
+
+        for (SimpleButton button : world.getActiveButtons()) {
+            button.draw(batcher);
+        }
 
         batcher.end();
 
@@ -207,8 +253,12 @@ public class GameRenderer {
             for (int i = 0; i < spawnList.size(); ++i) {
                 Floater floater = spawnList.get(i);
                 shapeRenderer.polygon(floater.getCollider().getTransformedVertices());
+                shapeRenderer.circle(floater.getX(), floater.getY(), 1);
+                shapeRenderer.circle(floater.getTrailX(), floater.getTrailY(), 1);
             }
             shapeRenderer.polygon(bear.getCollider().getTransformedVertices());
+            shapeRenderer.circle(bear.getX(), bear.getY(), 1);
+            shapeRenderer.circle(bear.getTrailX(), bear.getTrailY(), 1);
 
             // draw map bounds
             shapeRenderer.rect(Constants.GAME_START_X + Constants.GAME_LEFT_BOUND, Constants.GAME_START_Y,

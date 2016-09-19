@@ -3,7 +3,8 @@ package com.waznop.paddlebear;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.waznop.gameobjects.Bear;
-import com.waznop.gameworld.GameState;
+import com.waznop.gameobjects.SimpleButton;
+import com.waznop.gameworld.GameStateEnum;
 import com.waznop.gameworld.GameWorld;
 
 /**
@@ -24,8 +25,15 @@ public class InputHandler implements InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
 
-        if (world.getCurrentState() != GameState.PLAYING) {
-            world.reset();
+        GameStateEnum state = world.getCurrentState();
+
+        if (state == GameStateEnum.GAMEOVER) {
+            world.showPostMenu();
+            return true;
+        }
+
+        if (state == GameStateEnum.MENU || state == GameStateEnum.POSTMENU) {
+            world.startGame();
             return true;
         }
 
@@ -62,13 +70,23 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (world.getCurrentState() != GameState.PLAYING) {
-            world.reset();
+        screenX /= Constants.GAME_SCALE;
+        screenY /= Constants.GAME_SCALE;
+
+        GameStateEnum state = world.getCurrentState();
+
+        if (state == GameStateEnum.GAMEOVER) {
+            world.showPostMenu();
             return true;
         }
 
-        screenX /= Constants.GAME_SCALE;
-        screenY /= Constants.GAME_SCALE;
+        if (state == GameStateEnum.MENU || state == GameStateEnum.POSTMENU) {
+            boolean touchDown = false;
+            for (SimpleButton simpleButton : world.getActiveButtons()) {
+                touchDown = touchDown || simpleButton.isTouchDown(screenX, screenY);
+            }
+            return touchDown;
+        }
 
         if (screenX < Constants.GAME_MID_X) {
             if (screenY < Constants.GAME_MID_Y) {
@@ -93,8 +111,27 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        screenX /= Constants.GAME_SCALE;
+        screenY /= Constants.GAME_SCALE;
+
+        GameStateEnum state = world.getCurrentState();
+
+        if (state == GameStateEnum.MENU || state == GameStateEnum.POSTMENU) {
+            for (SimpleButton simpleButton : world.getActiveButtons()) {
+                 if (simpleButton.isTouchUp(screenX, screenY)) {
+                     switch(simpleButton.getType()) {
+                         case PLAY:
+                             world.startGame();
+                             break;
+                     }
+                     return true;
+                 }
+            }
+            return false;
+        }
+
         touchSection = TouchScreenEnum.NONE;
-        return false;
+        return true;
     }
 
     @Override
