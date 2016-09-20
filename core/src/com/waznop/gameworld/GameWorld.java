@@ -1,6 +1,7 @@
 package com.waznop.gameworld;
 
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.waznop.gameobjects.Bear;
@@ -31,14 +32,23 @@ public class GameWorld {
     private SimpleButton playButton;
     private SimpleButton shopButton;
     private SimpleButton restartButton;
-    private SimpleButton postButton;
+    private SimpleButton backButton;
+    private SimpleButton creditsButton;
+    private SimpleButton helpButton;
+    private SimpleButton cubButton;
+    private SimpleButton muteButton;
+    private SimpleButton unmuteButton;
 
     private GameStateEnum currentState;
 
     private float endGameTimer;
 
+    private Music currentMusic;
+
+    private boolean isMuted;
+
     public GameWorld() {
-        bear = new Bear(
+        bear = new Bear(this,
                 Constants.GAME_MID_X - Constants.BEAR_SIZE / 2,
                 Constants.GAME_MID_Y - Constants.BEAR_SIZE / 2,
                 Constants.BEAR_SIZE,
@@ -57,46 +67,72 @@ public class GameWorld {
         TextureRegion playButtonUp = AssetLoader.playButtonUp;
         TextureRegion shopButtonUp = AssetLoader.shopButtonUp;
         TextureRegion restartButtonUp = AssetLoader.restartButtonUp;
-        TextureRegion postButtonUp = AssetLoader.postButtonUp;
+        TextureRegion backButtonUp = AssetLoader.backButtonUp;
 
-        playButton = new SimpleButton(ButtonTypeEnum.PLAY,
+        isMuted = data.getBoolean("isMuted");
+
+        playButton = new SimpleButton(ButtonTypeEnum.PLAY, this,
                 Constants.GAME_MID_X - playButtonUp.getRegionWidth() * 1.5f,
                 Constants.GAME_MID_Y + Constants.PLAY_BUTTON_OFFSET_Y,
                 playButtonUp.getRegionWidth() * 3, playButtonUp.getRegionHeight() * 3,
-                playButtonUp, AssetLoader.playButtonDown
-        );
+                playButtonUp, AssetLoader.playButtonDown);
 
-        shopButton = new SimpleButton(ButtonTypeEnum.SHOP,
+        shopButton = new SimpleButton(ButtonTypeEnum.SHOP, this,
                 Constants.GAME_MID_X - shopButtonUp.getRegionWidth() * 1.2f,
                 Constants.GAME_MID_Y + Constants.SHOP_BUTTON_OFFSET_Y,
                 shopButtonUp.getRegionWidth() * 2.4f, shopButtonUp.getRegionHeight() * 2,
-                shopButtonUp, AssetLoader.shopButtonDown
-        );
+                shopButtonUp, AssetLoader.shopButtonDown);
 
-        restartButton = new SimpleButton(ButtonTypeEnum.PLAY,
+        restartButton = new SimpleButton(ButtonTypeEnum.PLAY, this,
                 Constants.GAME_MID_X - restartButtonUp.getRegionWidth() * 1.2f,
                 Constants.GAME_MID_Y + Constants.RESTART_BUTTON_OFFSET_Y,
                 restartButtonUp.getRegionWidth() * 2.4f, restartButtonUp.getRegionHeight() * 2,
-                restartButtonUp, AssetLoader.restartButtonDown
-        );
+                restartButtonUp, AssetLoader.restartButtonDown);
 
-        postButton = new SimpleButton(ButtonTypeEnum.POST,
-                Constants.GAME_MID_X - postButtonUp.getRegionWidth() * 1.2f,
-                Constants.GAME_MID_Y + Constants.POST_BUTTON_OFFSET_Y,
-                postButtonUp.getRegionWidth() * 2.4f, postButtonUp.getRegionHeight() * 2,
-                postButtonUp, AssetLoader.postButtonDown
-        );
+        backButton = new SimpleButton(ButtonTypeEnum.BACK, this,
+                Constants.GAME_MID_X - backButtonUp.getRegionWidth() * 1.2f,
+                Constants.GAME_MID_Y + Constants.BACK_BUTTON_OFFSET_Y,
+                backButtonUp.getRegionWidth() * 2.4f, backButtonUp.getRegionHeight() * 2,
+                backButtonUp, AssetLoader.backButtonDown);
+
+        helpButton = new SimpleButton(ButtonTypeEnum.HELP, this,
+                Constants.GAME_START_X, Constants.GAME_START_Y,
+                24, 24, AssetLoader.helpButtonUp, AssetLoader.helpButtonDown);
+
+        creditsButton = new SimpleButton(ButtonTypeEnum.CREDITS, this,
+                Constants.GAME_START_X + Constants.GAME_WIDTH - 24, Constants.GAME_START_Y,
+                24, 24, AssetLoader.creditsButtonUp, AssetLoader.creditsButtonDown);
+
+        cubButton = new SimpleButton(ButtonTypeEnum.SHOP, this,
+                Constants.GAME_START_X, Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
+                24, 24, AssetLoader.cubButtonUp, AssetLoader.cubButtonDown);
+
+        muteButton = new SimpleButton(ButtonTypeEnum.MUTE, this,
+                Constants.GAME_START_X + Constants.GAME_WIDTH - 24,
+                Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
+                24, 24, AssetLoader.muteButtonUp, AssetLoader.muteButtonDown);
+
+        unmuteButton = new SimpleButton(ButtonTypeEnum.UNMUTE, this,
+                Constants.GAME_START_X + Constants.GAME_WIDTH - 24,
+                Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
+                24, 24, AssetLoader.unmuteButtonUp, AssetLoader.unmuteButtonDown);
 
         activeButtons = new ArrayList<SimpleButton>();
         activeButtons.add(playButton);
+        activeButtons.add(helpButton);
+        activeButtons.add(creditsButton);
+        activeButtons.add(cubButton);
 
         endGameTimer = 0;
 
-        /*
-        startGame();
-        endGame();
-        showPostMenu();
-        */
+        currentMusic = AssetLoader.menuMusic;
+
+        if (isMuted) {
+            activeButtons.add(unmuteButton);
+        } else {
+            activeButtons.add(muteButton);
+            currentMusic.play();
+        }
     }
 
     public void startGame() {
@@ -109,6 +145,27 @@ public class GameWorld {
         fastforwarding = false;
         spawner.reset();
         activeButtons.clear();
+        currentMusic.stop();
+        currentMusic = AssetLoader.gameMusic;
+        if (! isMuted) {
+            currentMusic.play();
+        }
+    }
+
+    public void goToMenu() {
+        currentState = GameStateEnum.MENU;
+        scrollHandler.reset();
+        activeButtons.clear();
+        activeButtons.add(playButton);
+        activeButtons.add(helpButton);
+        activeButtons.add(creditsButton);
+        activeButtons.add(cubButton);
+
+        if (isMuted) {
+            activeButtons.add(unmuteButton);
+        } else {
+            activeButtons.add(muteButton);
+        }
     }
 
     public void update(float delta, float runTime) {
@@ -184,6 +241,9 @@ public class GameWorld {
             if (Intersector.overlapConvexPolygons(floater.getCollider(), bear.getCollider())) {
                 if (floater.getType() == FloaterEnum.BABYCUB) {
                     addToKarma(1);
+                    if (! isMuted) {
+                        AssetLoader.pickupSound.play(0.1f);
+                    }
                     floater.die();
                     iter.remove();
                 } else {
@@ -198,20 +258,27 @@ public class GameWorld {
 
     private void endGame() {
         endGameTimer = Constants.END_GAME_TIME;
-        spawner.setSpawnEnabled(false);
         bear.die();
         saveKarma();
         if (score > highScore) {
             setHighScore(score);
         }
         currentState = GameStateEnum.GAMEOVER;
+        currentMusic.stop();
+        if (! isMuted) {
+            AssetLoader.gameOverSound.play(0.5f);
+        }
     }
 
     public void showPostMenu() {
         currentState = GameStateEnum.POSTMENU;
         activeButtons.add(shopButton);
         activeButtons.add(restartButton);
-        activeButtons.add(postButton);
+        activeButtons.add(backButton);
+        currentMusic = AssetLoader.menuMusic;
+        if (! isMuted) {
+            currentMusic.play();
+        }
     }
 
     public int addToScore(int increment) {
@@ -270,6 +337,28 @@ public class GameWorld {
         return activeButtons;
     }
 
+    public boolean getIsMuted() {
+        return isMuted;
+    }
+
+    public void setIsMuted(boolean isMuted) {
+        if (this.isMuted == isMuted) {
+            return;
+        }
+        this.isMuted = isMuted;
+        if (isMuted) {
+            currentMusic.stop();
+            activeButtons.remove(muteButton);
+            activeButtons.add(unmuteButton);
+        } else {
+            currentMusic.play();
+            activeButtons.remove(unmuteButton);
+            activeButtons.add(muteButton);
+        }
+        data.putBoolean("isMuted", isMuted);
+        data.flush();
+    }
+
     public void toggleInvincibility() {
         bear.setIsInvincible(! bear.getIsInvincible());
     }
@@ -283,6 +372,7 @@ public class GameWorld {
         highScore = 0;
         data.putInteger("karma", 0);
         data.putInteger("highScore", 0);
+        data.putBoolean("isMuted", false);
         data.flush();
     }
 

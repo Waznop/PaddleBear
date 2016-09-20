@@ -1,7 +1,9 @@
 package com.waznop.gameobjects;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.waznop.gameworld.GameWorld;
+import com.waznop.paddlebear.AssetLoader;
 import com.waznop.paddlebear.Constants;
 
 /**
@@ -12,12 +14,14 @@ public class ScoreLine extends Scrollable{
     private boolean gotPoint;
     private GameWorld gameWorld;
     private Bear bear;
+    private Sound scoreUp;
 
     public ScoreLine(float x, float y, int width, int height, float speedY, GameWorld gameWorld) {
         super(1, x, y, width, height, speedY);
         this.gameWorld = gameWorld;
         bear = gameWorld.getBear();
         gotPoint = true;
+        scoreUp = AssetLoader.scoreupSound;
     }
 
     @Override
@@ -40,6 +44,9 @@ public class ScoreLine extends Scrollable{
         if (position.y > bear.getY() && ! gotPoint) {
             gotPoint = true;
             gameWorld.addToScore(1);
+            if (! gameWorld.getIsMuted()) {
+                scoreUp.play(0.2f);
+            }
         }
     }
 

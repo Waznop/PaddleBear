@@ -1,9 +1,11 @@
 package com.waznop.gameobjects;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
+import com.waznop.gameworld.GameWorld;
 import com.waznop.paddlebear.AssetLoader;
 import com.waznop.paddlebear.Constants;
 import com.waznop.paddlebear.HelperFunctions;
@@ -37,12 +39,21 @@ public class Bear {
     private Vector2 trailPosition;
     private ParticleEffect trail;
 
-    public Bear(float x, float y, int width, int height) {
+    private Sound paddling1Sound;
+    private Sound paddling2Sound;
+    private Sound prevPaddlingSound;
+    private Sound nextPaddlingSound;
+
+    private GameWorld world;
+
+    public Bear(GameWorld world, float x, float y, int width, int height) {
 
         position = new Vector2(x, y);
         rotation = 0;
         this.width = width;
         this.height = height;
+
+        this.world = world;
 
         lv = 0;
         av = 0;
@@ -68,6 +79,10 @@ public class Bear {
         trail = AssetLoader.bearTrail;
         trail.start();
 
+        paddling1Sound = AssetLoader.paddling1Sound;
+        paddling2Sound = AssetLoader.paddling2Sound;
+        prevPaddlingSound = paddling2Sound;
+        nextPaddlingSound = paddling1Sound;
     }
 
     public void reset(float x, float y) {
@@ -161,6 +176,7 @@ public class Bear {
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = true;
         paddlingFront = true;
+        playPaddlingSound();
     }
 
     public void onPaddleFrontRight() {
@@ -169,6 +185,7 @@ public class Bear {
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = false;
         paddlingFront = true;
+        playPaddlingSound();
     }
 
     public void onPaddleBackLeft() {
@@ -177,6 +194,7 @@ public class Bear {
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = true;
         paddlingFront = false;
+        playPaddlingSound();
     }
 
     public void onPaddleBackRight() {
@@ -185,6 +203,18 @@ public class Bear {
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = false;
         paddlingFront = false;
+        playPaddlingSound();
+    }
+
+    private void playPaddlingSound() {
+        if (world.getIsMuted()) {
+            return;
+        }
+
+        prevPaddlingSound.stop();
+        nextPaddlingSound.play();
+        prevPaddlingSound = nextPaddlingSound;
+        nextPaddlingSound = nextPaddlingSound == paddling1Sound ? paddling2Sound : paddling1Sound;
     }
 
     public void die() {

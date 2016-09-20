@@ -2,6 +2,8 @@ package com.waznop.paddlebear;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 
@@ -62,12 +64,23 @@ public class AssetLoader {
     public static TextureRegion playButtonDown;
     public static TextureRegion shopButtonUp;
     public static TextureRegion shopButtonDown;
-    public static TextureRegion postButtonUp;
-    public static TextureRegion postButtonDown;
+    public static TextureRegion backButtonUp;
+    public static TextureRegion backButtonDown;
     public static TextureRegion restartButtonUp;
     public static TextureRegion restartButtonDown;
     public static TextureRegion postGameMenu;
     public static TextureRegion bearCubIcon;
+
+    public static TextureRegion creditsButtonUp;
+    public static TextureRegion creditsButtonDown;
+    public static TextureRegion helpButtonUp;
+    public static TextureRegion helpButtonDown;
+    public static TextureRegion cubButtonUp;
+    public static TextureRegion cubButtonDown;
+    public static TextureRegion muteButtonUp;
+    public static TextureRegion muteButtonDown;
+    public static TextureRegion unmuteButtonUp;
+    public static TextureRegion unmuteButtonDown;
 
     public static Preferences data;
 
@@ -76,6 +89,16 @@ public class AssetLoader {
     public static ParticleEffect bearTrail;
     public static ParticleEffect rectTrail;
     public static ParticleEffectPool particlePool;
+
+    public static Sound gameOverSound;
+    public static Sound paddling1Sound;
+    public static Sound paddling2Sound;
+    public static Sound pickupSound;
+    public static Sound scoreupSound;
+    public static Sound clickSound;
+
+    public static Music menuMusic;
+    public static Music gameMusic;
 
     public static void load() {
         spriteSheet = new Texture(Gdx.files.internal("spriteSheet.png"));
@@ -180,26 +203,47 @@ public class AssetLoader {
                 dying7, dying8, dying9, dying10, dying11, dying12};
         dyingAnimation = new Animation(0.05f, dying);
 
-        postGameMenu = new TextureRegion(spriteSheet, 16, 0, 23, 51);
+        postGameMenu = new TextureRegion(spriteSheet, 135, 0, 23, 51);
         postGameMenu.flip(false, true);
-        playButtonUp = new TextureRegion(spriteSheet, 16, 51, 23, 15);
+        playButtonUp = new TextureRegion(spriteSheet, 112, 0, 23, 15);
         playButtonUp.flip(false, true);
-        playButtonDown = new TextureRegion(spriteSheet, 39, 60, 23, 15);
+        playButtonDown = new TextureRegion(spriteSheet, 112, 15, 23, 15);
         playButtonDown.flip(false, true);
-        restartButtonUp = new TextureRegion(spriteSheet, 39, 0, 19, 9);
+        restartButtonUp = new TextureRegion(spriteSheet, 112, 30, 19, 9);
         restartButtonUp.flip(false, true);
-        restartButtonDown = new TextureRegion(spriteSheet, 39, 9, 19, 9);
+        restartButtonDown = new TextureRegion(spriteSheet, 112, 39, 19, 9);
         restartButtonDown.flip(false, true);
-        shopButtonUp = new TextureRegion(spriteSheet, 39, 18, 19, 9);
+        shopButtonUp = new TextureRegion(spriteSheet, 112, 48, 19, 9);
         shopButtonUp.flip(false, true);
-        shopButtonDown = new TextureRegion(spriteSheet, 39, 27, 19, 9);
+        shopButtonDown = new TextureRegion(spriteSheet, 112, 57, 19, 9);
         shopButtonDown.flip(false, true);
-        postButtonUp = new TextureRegion(spriteSheet, 39, 36, 19, 9);
-        postButtonUp.flip(false, true);
-        postButtonDown = new TextureRegion(spriteSheet, 39, 45, 19, 9);
-        postButtonDown.flip(false, true);
-        bearCubIcon = new TextureRegion(spriteSheet, 39, 54, 7, 6);
+        backButtonUp = new TextureRegion(spriteSheet, 135, 51, 19, 9);
+        backButtonUp.flip(false, true);
+        backButtonDown = new TextureRegion(spriteSheet, 135, 60, 19, 9);
+        backButtonDown.flip(false, true);
+        bearCubIcon = new TextureRegion(spriteSheet, 112, 66, 7, 6);
         bearCubIcon.flip(false, true);
+
+        helpButtonUp = new TextureRegion(spriteSheet, 80, 0, 16, 16);
+        helpButtonUp.flip(false, true);
+        helpButtonDown = new TextureRegion(spriteSheet, 96, 0, 16, 16);
+        helpButtonDown.flip(false, true);
+        creditsButtonUp = new TextureRegion(spriteSheet, 80, 16, 16, 16);
+        creditsButtonUp.flip(false, true);
+        creditsButtonDown = new TextureRegion(spriteSheet, 96, 16, 16, 16);
+        creditsButtonDown.flip(false, true);
+        cubButtonUp = new TextureRegion(spriteSheet, 80, 32, 16, 16);
+        cubButtonUp.flip(false, true);
+        cubButtonDown = new TextureRegion(spriteSheet, 96, 32, 16, 16);
+        cubButtonDown.flip(false, true);
+        muteButtonUp = new TextureRegion(spriteSheet, 80, 48, 16, 16);
+        muteButtonUp.flip(false, true);
+        muteButtonDown = new TextureRegion(spriteSheet, 96, 48, 16, 16);
+        muteButtonDown.flip(false, true);
+        unmuteButtonUp = new TextureRegion(spriteSheet, 80, 64, 16, 16);
+        unmuteButtonUp.flip(false, true);
+        unmuteButtonDown = new TextureRegion(spriteSheet, 96, 64, 16, 16);
+        unmuteButtonDown.flip(false, true);
 
         font = new BitmapFont(Gdx.files.internal("font.fnt"));
         font.getData().setScale(0.5f, -0.5f);
@@ -214,6 +258,10 @@ public class AssetLoader {
             data.putInteger("karma", 0);
         }
 
+        if (! data.contains("isMuted")) {
+            data.putBoolean("isMuted", false);
+        }
+
         bearTrail = new ParticleEffect();
         bearTrail.load(Gdx.files.internal("bearTrail.p"), Gdx.files.internal(""));
 
@@ -223,6 +271,16 @@ public class AssetLoader {
         particlePool = new ParticleEffectPool(rectTrail,
                 Constants.PARTICLE_POOL_SIZE, Constants.PARTICLE_POOL_SIZE);
 
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
+        pickupSound = Gdx.audio.newSound(Gdx.files.internal("pickup.ogg"));
+        scoreupSound = Gdx.audio.newSound(Gdx.files.internal("scoreup.wav"));
+        clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
+        paddling1Sound = Gdx.audio.newSound(Gdx.files.internal("paddling1.ogg"));
+        paddling2Sound = Gdx.audio.newSound(Gdx.files.internal("paddling2.ogg"));
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("rowYourBoat.mp3"));
+        menuMusic.setLooping(true);
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("everydayImPaddling.mp3"));
+        gameMusic.setLooping(true);
     }
 
     public static void dispose() {
@@ -232,6 +290,14 @@ public class AssetLoader {
         font.dispose();
         bearTrail.dispose();
         rectTrail.dispose();
+        gameOverSound.dispose();
+        pickupSound.dispose();
+        scoreupSound.dispose();
+        clickSound.dispose();
+        paddling1Sound.dispose();
+        paddling2Sound.dispose();
+        menuMusic.dispose();
+        gameMusic.dispose();
     }
 
 }

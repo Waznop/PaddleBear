@@ -123,6 +123,21 @@ public class InputHandler implements InputProcessor {
                          case PLAY:
                              world.startGame();
                              break;
+                         case BACK:
+                             world.goToMenu();
+                             break;
+                         case MUTE:
+                             world.setIsMuted(true);
+                             break;
+                         case UNMUTE:
+                             world.setIsMuted(false);
+                             break;
+                         case HELP:
+                             break;
+                         case CREDITS:
+                             break;
+                         case SHOP:
+                             break;
                      }
                      return true;
                  }

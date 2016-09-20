@@ -65,7 +65,7 @@ public class Constants {
     public final static int PLAY_BUTTON_OFFSET_Y = -18;
     public final static int SHOP_BUTTON_OFFSET_Y = -6;
     public final static int RESTART_BUTTON_OFFSET_Y = 16;
-    public final static int POST_BUTTON_OFFSET_Y = 38;
+    public final static int BACK_BUTTON_OFFSET_Y = 38;
     public final static int POST_MENU_OFFSET_Y = -72;
 
     public final static int POST_MENU_FIELD_OFFSET_X = -23;

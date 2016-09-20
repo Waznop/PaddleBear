@@ -1,9 +1,13 @@
 package com.waznop.gameobjects;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.waznop.gameworld.ButtonTypeEnum;
+import com.waznop.gameworld.GameWorld;
+import com.waznop.paddlebear.AssetLoader;
+import com.waznop.paddlebear.Constants;
 
 /**
  * Created by Waznop on 2016-09-18.
@@ -19,8 +23,10 @@ public class SimpleButton {
     private TextureRegion buttonDown;
     private Rectangle bounds;
     private boolean isPressed;
+    private Sound clickSound;
+    private GameWorld world;
 
-    public SimpleButton(ButtonTypeEnum type, float x, float y, float width, float height,
+    public SimpleButton(ButtonTypeEnum type, GameWorld world, float x, float y, float width, float height,
                         TextureRegion buttonUp, TextureRegion buttonDown) {
         this.type = type;
         this.x = x;
@@ -31,6 +37,8 @@ public class SimpleButton {
         this.buttonDown = buttonDown;
         bounds = new Rectangle(x, y, width, height);
         isPressed = false;
+        clickSound = AssetLoader.clickSound;
+        this.world = world;
     }
 
     public boolean isClicked(int screenX, int screenY) {
@@ -45,6 +53,9 @@ public class SimpleButton {
         boolean condition = isClicked(screenX, screenY);
         if (condition) {
             isPressed = true;
+            if (! world.getIsMuted()) {
+                clickSound.play();
+            }
         }
         return condition;
     }

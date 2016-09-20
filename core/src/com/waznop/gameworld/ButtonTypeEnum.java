@@ -6,5 +6,9 @@ package com.waznop.gameworld;
 public enum ButtonTypeEnum {
     PLAY,
     SHOP,
-    POST
+    BACK,
+    HELP,
+    CREDITS,
+    MUTE,
+    UNMUTE;
 }
