@@ -113,6 +113,7 @@ public class AssetLoader {
     public static TextureRegion unmuteButtonDown;
     public static TextureRegion waznopGames;
     public static TextureRegion paddleBearTitle;
+    public static TextureRegion paddleBearTitleShade;
     public static TextureRegion titleBear1;
     public static TextureRegion titleBear2;
     public static TextureRegion titleBear3;
@@ -298,10 +299,11 @@ public class AssetLoader {
         unmuteButtonUp.flip(false, true);
         unmuteButtonDown = new TextureRegion(spriteSheet, 144, 32, 16, 16);
         unmuteButtonDown.flip(false, true);
-        waznopGames = new TextureRegion(spriteSheet2, 105, 39, 31, 15);
-        waznopGames.flip(false, true);
+        waznopGames = new TextureRegion(spriteSheet2, 113, 39, 31, 15);
         paddleBearTitle = new TextureRegion(spriteSheet2, 50, 66, 25, 13);
         paddleBearTitle.flip(false, true);
+        paddleBearTitleShade = new TextureRegion(spriteSheet2, 82, 51, 25, 13);
+        paddleBearTitleShade.flip(false, true);
         titleBear1 = new TextureRegion(spriteSheet2, 144, 0, 25, 17);
         titleBear1.flip(false, true);
         titleBear2 = new TextureRegion(spriteSheet2, 144, 17, 25, 17);

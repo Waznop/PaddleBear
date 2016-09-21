@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.waznop.gameobjects.*;
 import com.waznop.paddlebear.AssetLoader;
@@ -66,6 +67,7 @@ public class GameRenderer {
     private TextureRegion shopItemDown;
     private TextureRegion shopItemSelect;
     private TextureRegion titleText;
+    private Sprite titleTextShade;
     private TextureRegion titleBear1;
     private Animation titleBear;
 
@@ -127,6 +129,11 @@ public class GameRenderer {
         shopItemDown = AssetLoader.shopItemDown;
         shopItemSelect = AssetLoader.shopItemSelect;
         titleText = AssetLoader.paddleBearTitle;
+        titleTextShade = new Sprite(AssetLoader.paddleBearTitleShade);
+        titleTextShade.setSize(titleText.getRegionWidth() * 3, titleText.getRegionHeight() * 3);
+        titleTextShade.setPosition((int) (Constants.GAME_MID_X - titleText.getRegionWidth() * 1.5f) + 1,
+                Constants.GAME_MID_Y + 24);
+        titleTextShade.setAlpha(0);
         titleBear1 = AssetLoader.titleBear1;
         titleBear = AssetLoader.titleBearAnimation;
 
@@ -243,15 +250,22 @@ public class GameRenderer {
             case MENU:
                 int bearWidth = titleBear1.getRegionWidth();
                 int bearHeight = titleBear1.getRegionHeight();
-                int textWidth = titleText.getRegionWidth();
+                int textWidth = titleText.getRegionWidth() * 3;
+                int textHeight = titleText.getRegionHeight() * 3;
+                float textX = Constants.GAME_MID_X - textWidth / 2;
+                float textY = Constants.GAME_MID_Y + 24;
                 batcher.draw(titleBear.getKeyFrame(runTime),
                         Constants.GAME_MID_X - bearWidth * 1.5f,
                         Constants.GAME_MID_Y - 60,
                         bearWidth * 3, bearHeight * 3);
-                batcher.draw(titleText,
-                        Constants.GAME_MID_X - textWidth * 1.5f,
-                        Constants.GAME_MID_Y + 24,
-                        textWidth * 3, titleText.getRegionHeight() * 3);
+                float flashTimer = runTime % 4;
+                if (flashTimer < 1) {
+                    titleTextShade.setAlpha(Interpolation.bounceOut.apply(flashTimer));
+                } else if (flashTimer > 3) {
+                    titleTextShade.setAlpha(Interpolation.bounceOut.apply(4 - flashTimer));
+                }
+                titleTextShade.draw(batcher);
+                batcher.draw(titleText, textX, textY, textWidth, textHeight);
                 break;
             case POSTMENU:
                 font.setColor(85/255f, 50/255f, 7/255f, 1);

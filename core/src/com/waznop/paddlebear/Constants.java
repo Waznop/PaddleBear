@@ -8,6 +8,8 @@ import com.waznop.gameworld.BearEnum;
 public class Constants {
 
     // relative dimensions
+    public static float SCALED_SCREEN_WIDTH;
+    public static float SCALED_SCREEN_HEIGHT;
     public static int SCREEN_WIDTH;
     public static int SCREEN_HEIGHT;
     public static float GAME_SCALE;

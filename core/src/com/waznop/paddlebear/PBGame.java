@@ -2,7 +2,7 @@ package com.waznop.paddlebear;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.waznop.screens.GameScreen;
+import com.waznop.screens.SplashScreen;
 
 public class PBGame extends Game {
 	
@@ -28,6 +28,8 @@ public class PBGame extends Game {
 			gameStartY = 0;
 			gameStartX = (screenWidth - gameWidth) / 2;
 		}
+		Constants.SCALED_SCREEN_WIDTH = scaledScreenWidth;
+		Constants.SCALED_SCREEN_HEIGHT = scaledScreenHeight;
 		Constants.SCREEN_WIDTH = screenWidth;
 		Constants.SCREEN_HEIGHT = screenHeight;
 		Constants.GAME_SCALE = scaledScreenWidth / screenWidth;
@@ -38,7 +40,7 @@ public class PBGame extends Game {
 
 		AssetLoader.load();
 
-		setScreen(new GameScreen());
+		setScreen(new SplashScreen(this));
 	}
 
 	@Override
