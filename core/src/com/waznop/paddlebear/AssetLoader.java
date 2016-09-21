@@ -111,6 +111,13 @@ public class AssetLoader {
     public static TextureRegion muteButtonDown;
     public static TextureRegion unmuteButtonUp;
     public static TextureRegion unmuteButtonDown;
+    public static TextureRegion waznopGames;
+    public static TextureRegion paddleBearTitle;
+    public static TextureRegion titleBear1;
+    public static TextureRegion titleBear2;
+    public static TextureRegion titleBear3;
+    public static TextureRegion titleBear4;
+    public static Animation titleBearAnimation;
 
     // data
     public static Preferences data;
@@ -200,9 +207,9 @@ public class AssetLoader {
         // post menu UI
         postGameMenu = new TextureRegion(spriteSheet2, 82, 0, 23, 51);
         postGameMenu.flip(false, true);
-        playButtonUp = new TextureRegion(spriteSheet2, 82, 51, 23, 15);
+        playButtonUp = new TextureRegion(spriteSheet2, 82, 64, 23, 15);
         playButtonUp.flip(false, true);
-        playButtonDown = new TextureRegion(spriteSheet2, 105, 39, 23, 15);
+        playButtonDown = new TextureRegion(spriteSheet2, 105, 64, 23, 15);
         playButtonDown.flip(false, true);
         shopButtonUp = new TextureRegion(spriteSheet2, 43, 30, 19, 9);
         shopButtonUp.flip(false, true);
@@ -291,6 +298,21 @@ public class AssetLoader {
         unmuteButtonUp.flip(false, true);
         unmuteButtonDown = new TextureRegion(spriteSheet, 144, 32, 16, 16);
         unmuteButtonDown.flip(false, true);
+        waznopGames = new TextureRegion(spriteSheet2, 105, 39, 31, 15);
+        waznopGames.flip(false, true);
+        paddleBearTitle = new TextureRegion(spriteSheet2, 50, 66, 25, 13);
+        paddleBearTitle.flip(false, true);
+        titleBear1 = new TextureRegion(spriteSheet2, 144, 0, 25, 17);
+        titleBear1.flip(false, true);
+        titleBear2 = new TextureRegion(spriteSheet2, 144, 17, 25, 17);
+        titleBear2.flip(false, true);
+        titleBear3 = new TextureRegion(spriteSheet2, 144, 34, 25, 17);
+        titleBear3.flip(false, true);
+        titleBear4 = new TextureRegion(spriteSheet2, 144, 51, 25, 17);
+        titleBear4.flip(false, true);
+        TextureRegion[] titleBear = {titleBear1, titleBear2, titleBear3, titleBear4};
+        titleBearAnimation = new Animation(Constants.PADDLE_TIMER_A * 1.5f, titleBear);
+        titleBearAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         // bear art
         paddlingLeft1 = new TextureRegion();

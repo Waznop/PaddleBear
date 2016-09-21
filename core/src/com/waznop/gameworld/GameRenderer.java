@@ -65,6 +65,9 @@ public class GameRenderer {
     private TextureRegion shopItemUp;
     private TextureRegion shopItemDown;
     private TextureRegion shopItemSelect;
+    private TextureRegion titleText;
+    private TextureRegion titleBear1;
+    private Animation titleBear;
 
 
     // font
@@ -123,6 +126,9 @@ public class GameRenderer {
         shopItemUp = AssetLoader.shopItemUp;
         shopItemDown = AssetLoader.shopItemDown;
         shopItemSelect = AssetLoader.shopItemSelect;
+        titleText = AssetLoader.paddleBearTitle;
+        titleBear1 = AssetLoader.titleBear1;
+        titleBear = AssetLoader.titleBearAnimation;
 
         font = AssetLoader.font;
     }
@@ -234,6 +240,19 @@ public class GameRenderer {
 
     private void drawUI(float runTime) {
         switch(world.getCurrentState()) {
+            case MENU:
+                int bearWidth = titleBear1.getRegionWidth();
+                int bearHeight = titleBear1.getRegionHeight();
+                int textWidth = titleText.getRegionWidth();
+                batcher.draw(titleBear.getKeyFrame(runTime),
+                        Constants.GAME_MID_X - bearWidth * 1.5f,
+                        Constants.GAME_MID_Y - 60,
+                        bearWidth * 3, bearHeight * 3);
+                batcher.draw(titleText,
+                        Constants.GAME_MID_X - textWidth * 1.5f,
+                        Constants.GAME_MID_Y + 24,
+                        textWidth * 3, titleText.getRegionHeight() * 3);
+                break;
             case POSTMENU:
                 font.setColor(85/255f, 50/255f, 7/255f, 1);
                 batcher.draw(postGameMenu,

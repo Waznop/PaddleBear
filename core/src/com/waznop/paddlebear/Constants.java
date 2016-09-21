@@ -160,6 +160,6 @@ public class Constants {
     public final static String CREDITS_STRING_8 =
             "Have a nice day you fools <3";
     public final static String CREDITS_STRING_9 =
-            "@UW 2016";
+            "ver.1.0 @UW 2016";
 
 }
