@@ -104,8 +104,9 @@ public class Bear {
     }
 
     public void updateGameover(float delta) {
-        position.y += (Constants.BOAT_SCROLL_Y - Constants.LAND_SCROLL_Y) * delta;
-        trailPosition.y += (Constants.BOAT_SCROLL_Y - Constants.LAND_SCROLL_Y) * delta;
+        float scrollSpeedY = Constants.BOAT_SCROLL_Y - Constants.LAND_SCROLL_Y;
+        position.y += scrollSpeedY * delta;
+        trailPosition.y += scrollSpeedY * delta;
         dyingTimer += delta;
         trail.update(delta);
     }
@@ -119,21 +120,18 @@ public class Bear {
         if (paddleTimer > 0) {
             paddleTimer -= delta;
 
-            if (paddleTimer <= Constants.PADDLE_TIMER_B && la != Constants.LA_FORCE_B) {
-                la = paddlingFront ? Constants.LA_FORCE_B : Constants.LA_BACK_FORCE_B;
-                aa = Math.signum(aa) * Constants.AA_FORCE_B;
-            }
-
-            if (paddleTimer <= Constants.PADDLE_TIMER_C && la != Constants.LA_FORCE_C) {
-                la = paddlingFront ? Constants.LA_FORCE_C : Constants.LA_BACK_FORCE_C;
-                aa = Math.signum(aa) * Constants.AA_FORCE_C;
-            }
-
             if (paddleTimer <= 0) {
                 paddleTimer = 0;
                 la = 0;
                 aa = 0;
+            } else if (paddleTimer <= Constants.PADDLE_TIMER_C && la != Constants.LA_FORCE_C) {
+                la = paddlingFront ? Constants.LA_FORCE_C : Constants.LA_BACK_FORCE_C;
+                aa = Math.signum(aa) * Constants.AA_FORCE_C;
+            } else if (paddleTimer <= Constants.PADDLE_TIMER_B && la != Constants.LA_FORCE_B) {
+                la = paddlingFront ? Constants.LA_FORCE_B : Constants.LA_BACK_FORCE_B;
+                aa = Math.signum(aa) * Constants.AA_FORCE_B;
             }
+
         }
 
         lv += la * delta;
@@ -156,7 +154,7 @@ public class Bear {
         float centerX = getCenterX();
         float centerY = getCenterY();
         trailPosition.set(centerX, position.y);
-        HelperFunctions.rotateAtPoint(trailPosition, centerX, centerY, (float) Math.toRadians(rotation));
+        HelperFunctions.rotateAtPoint(trailPosition, centerX, centerY, rotationRad);
 
         if (ds > 0) {
             trail.setPosition(trailPosition.x, trailPosition.y);

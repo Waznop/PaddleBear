@@ -1,6 +1,7 @@
 package com.waznop.paddlebear;
 
 import com.badlogic.gdx.math.Vector2;
+import com.waznop.gameworld.BearEnum;
 
 /**
  * Created by Waznop on 2016-09-18.
@@ -34,6 +35,15 @@ public class HelperFunctions {
         position.y = newY + pointY;
 
         return position;
+    }
+
+    public static BearEnum getBearEnumFromString(String name) {
+        for (BearEnum bear : BearEnum.values()) {
+            if (name.equals(bear.name)) {
+                return bear;
+            }
+        }
+        return Constants.DEFAULT_BEAR;
     }
 
 }

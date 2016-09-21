@@ -10,5 +10,6 @@ public enum ButtonTypeEnum {
     HELP,
     CREDITS,
     MUTE,
-    UNMUTE;
+    UNMUTE,
+    BUY
 }

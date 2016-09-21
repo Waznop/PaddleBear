@@ -7,5 +7,9 @@ public enum GameStateEnum {
     MENU,
     PLAYING,
     GAMEOVER,
-    POSTMENU
+    POSTMENU,
+    MENUSHOP,
+    POSTMENUSHOP,
+    CREDITS,
+    HELP
 }

@@ -34,8 +34,8 @@ public class GameScreen implements Screen {
             delta = .15f;
         }
         runTime += delta;
-        world.update(delta, runTime);
-        renderer.render(delta, runTime);
+        world.update(delta);
+        renderer.render(runTime);
     }
 
     @Override

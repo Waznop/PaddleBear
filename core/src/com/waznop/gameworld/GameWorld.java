@@ -1,13 +1,14 @@
 package com.waznop.gameworld;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.waznop.gameobjects.Bear;
 import com.waznop.gameobjects.Floater;
-import com.waznop.paddlebear.AssetLoader;
-import com.waznop.paddlebear.Constants;
+import com.waznop.gameobjects.ShopItem;
+import com.waznop.paddlebear.*;
 import com.waznop.gameobjects.SimpleButton;
 
 import java.util.ArrayList;
@@ -20,13 +21,19 @@ public class GameWorld {
 
     private Bear bear;
     private ScrollHandler scrollHandler;
-    private int score;
-    private boolean fastforwarding;
     private Spawner spawner;
+    private boolean fastforwarding;
+    private float endGameTimer;
+    private GameStateEnum currentState;
+    private BearEnum activeBear;
+
     private Preferences data;
     private int karma;
     private int deltaKarma;
+    private int score;
     private int highScore;
+    private boolean isMuted;
+    private Music currentMusic;
 
     private ArrayList<SimpleButton> activeButtons;
     private SimpleButton playButton;
@@ -38,82 +45,91 @@ public class GameWorld {
     private SimpleButton cubButton;
     private SimpleButton muteButton;
     private SimpleButton unmuteButton;
+    private SimpleButton shopBackButton;
+    private SimpleButton shopDetailsBackButton;
+    private SimpleButton buyButton;
 
-    private GameStateEnum currentState;
-
-    private float endGameTimer;
-
-    private Music currentMusic;
-
-    private boolean isMuted;
+    private ArrayList<ShopItem> shopItems;
+    private ShopItem shopTeddy;
+    private ShopItem shopSpaddula;
+    private ShopItem shopJacub;
+    private ShopItem shopTsunder;
+    private ShopItem shopWolf;
+    private ShopItem itemOnDisplay;
 
     public GameWorld() {
+        currentState = GameStateEnum.MENU;
         bear = new Bear(this,
                 Constants.GAME_MID_X - Constants.BEAR_SIZE / 2,
                 Constants.GAME_MID_Y - Constants.BEAR_SIZE / 2,
                 Constants.BEAR_SIZE,
                 Constants.BEAR_SIZE);
         scrollHandler = new ScrollHandler(this);
-        score = 0;
-        currentState = GameStateEnum.MENU;
-        fastforwarding = false;
         spawner = new Spawner();
+        score = 0;
+        endGameTimer = 0;
+        fastforwarding = false;
 
         data = AssetLoader.data;
         karma = data.getInteger("karma");
         deltaKarma = 0;
         highScore = data.getInteger("highScore");
+        activeBear = HelperFunctions.getBearEnumFromString(data.getString("activeBear"));
 
+        // buttons
         TextureRegion playButtonUp = AssetLoader.playButtonUp;
         TextureRegion shopButtonUp = AssetLoader.shopButtonUp;
         TextureRegion restartButtonUp = AssetLoader.restartButtonUp;
         TextureRegion backButtonUp = AssetLoader.backButtonUp;
-
-        isMuted = data.getBoolean("isMuted");
+        TextureRegion buyButtonUp = AssetLoader.buyButtonUp;
 
         playButton = new SimpleButton(ButtonTypeEnum.PLAY, this,
                 Constants.GAME_MID_X - playButtonUp.getRegionWidth() * 1.5f,
                 Constants.GAME_MID_Y + Constants.PLAY_BUTTON_OFFSET_Y,
-                playButtonUp.getRegionWidth() * 3, playButtonUp.getRegionHeight() * 3,
-                playButtonUp, AssetLoader.playButtonDown);
+                playButtonUp.getRegionWidth() * 3, (playButtonUp.getRegionHeight() - 3) * 3,
+                playButtonUp, AssetLoader.playButtonDown,
+                playButtonUp.getRegionWidth() * 3, playButtonUp.getRegionHeight() * 3);
+
+        float postMenuButtonX = Constants.GAME_MID_X - shopButtonUp.getRegionWidth() * 1.2f;
+        float postMenuButtonWidth = shopButtonUp.getRegionWidth() * 2.4f;
+        float postMenuButtonHeight = shopButtonUp.getRegionHeight() * 2;
 
         shopButton = new SimpleButton(ButtonTypeEnum.SHOP, this,
-                Constants.GAME_MID_X - shopButtonUp.getRegionWidth() * 1.2f,
-                Constants.GAME_MID_Y + Constants.SHOP_BUTTON_OFFSET_Y,
-                shopButtonUp.getRegionWidth() * 2.4f, shopButtonUp.getRegionHeight() * 2,
-                shopButtonUp, AssetLoader.shopButtonDown);
-
+                postMenuButtonX, Constants.GAME_MID_Y + Constants.SHOP_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, shopButtonUp, AssetLoader.shopButtonDown);
         restartButton = new SimpleButton(ButtonTypeEnum.PLAY, this,
-                Constants.GAME_MID_X - restartButtonUp.getRegionWidth() * 1.2f,
-                Constants.GAME_MID_Y + Constants.RESTART_BUTTON_OFFSET_Y,
-                restartButtonUp.getRegionWidth() * 2.4f, restartButtonUp.getRegionHeight() * 2,
-                restartButtonUp, AssetLoader.restartButtonDown);
-
+                postMenuButtonX, Constants.GAME_MID_Y + Constants.RESTART_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, restartButtonUp, AssetLoader.restartButtonDown);
         backButton = new SimpleButton(ButtonTypeEnum.BACK, this,
-                Constants.GAME_MID_X - backButtonUp.getRegionWidth() * 1.2f,
-                Constants.GAME_MID_Y + Constants.BACK_BUTTON_OFFSET_Y,
-                backButtonUp.getRegionWidth() * 2.4f, backButtonUp.getRegionHeight() * 2,
-                backButtonUp, AssetLoader.backButtonDown);
+                postMenuButtonX, Constants.GAME_MID_Y + Constants.BACK_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, backButtonUp, AssetLoader.backButtonDown);
+        shopBackButton = new SimpleButton(ButtonTypeEnum.BACK, this,
+                postMenuButtonX, Constants.GAME_START_Y + Constants.SHOP_BACK_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, backButtonUp, AssetLoader.backButtonDown);
+        shopDetailsBackButton = new SimpleButton(ButtonTypeEnum.BACK, this,
+                Constants.GAME_MID_X - Constants.SHOP_DETAILS_BUTTON_OFFSET_X - postMenuButtonWidth,
+                Constants.GAME_MID_Y + Constants.SHOP_DETAILS_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, backButtonUp, AssetLoader.backButtonDown);
+        buyButton = new SimpleButton(ButtonTypeEnum.BUY, this,
+                Constants.GAME_MID_X + Constants.SHOP_DETAILS_BUTTON_OFFSET_X,
+                Constants.GAME_MID_Y + Constants.SHOP_DETAILS_BUTTON_OFFSET_Y,
+                postMenuButtonWidth, postMenuButtonHeight, buyButtonUp, AssetLoader.buyButtonDown);
 
         helpButton = new SimpleButton(ButtonTypeEnum.HELP, this,
-                Constants.GAME_START_X, Constants.GAME_START_Y,
+                0, Constants.GAME_START_Y,
                 24, 24, AssetLoader.helpButtonUp, AssetLoader.helpButtonDown);
-
         creditsButton = new SimpleButton(ButtonTypeEnum.CREDITS, this,
-                Constants.GAME_START_X + Constants.GAME_WIDTH - 24, Constants.GAME_START_Y,
+                Constants.SCREEN_WIDTH - 24, Constants.GAME_START_Y,
                 24, 24, AssetLoader.creditsButtonUp, AssetLoader.creditsButtonDown);
-
         cubButton = new SimpleButton(ButtonTypeEnum.SHOP, this,
-                Constants.GAME_START_X, Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
+                0, Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
                 24, 24, AssetLoader.cubButtonUp, AssetLoader.cubButtonDown);
-
         muteButton = new SimpleButton(ButtonTypeEnum.MUTE, this,
-                Constants.GAME_START_X + Constants.GAME_WIDTH - 24,
+                Constants.SCREEN_WIDTH - 24,
                 Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
                 24, 24, AssetLoader.muteButtonUp, AssetLoader.muteButtonDown);
-
         unmuteButton = new SimpleButton(ButtonTypeEnum.UNMUTE, this,
-                Constants.GAME_START_X + Constants.GAME_WIDTH - 24,
+                Constants.SCREEN_WIDTH - 24,
                 Constants.GAME_START_Y + Constants.GAME_HEIGHT - 24,
                 24, 24, AssetLoader.unmuteButtonUp, AssetLoader.unmuteButtonDown);
 
@@ -123,15 +139,64 @@ public class GameWorld {
         activeButtons.add(creditsButton);
         activeButtons.add(cubButton);
 
-        endGameTimer = 0;
+        // shop
 
+        TextureRegion shopItemUp = AssetLoader.shopItemUp;
+        float shopItemX = Constants.GAME_MID_X - shopItemUp.getRegionWidth() * 1.5f;
+        float shopItemWidth = shopItemUp.getRegionWidth() * 3;
+        float shopItemHeight = shopItemUp.getRegionHeight() * 3;
+        shopTeddy = new ShopItem(BearEnum.TEDDY, this, Constants.TEDDY_NAME,
+                Constants.TEDDY_DESCRIPTION, Constants.SHOP_TEDDY_PRICE,
+                shopItemX, Constants.GAME_MID_Y + Constants.SHOP_TEDDY_OFFSET_Y,
+                shopItemWidth, shopItemHeight);
+        shopSpaddula = new ShopItem(BearEnum.SPADDULA, this, Constants.SPADDULA_NAME,
+                Constants.SPADDULA_DESCRIPTION, Constants.SHOP_SPADDULA_PRICE,
+                shopItemX, Constants.GAME_MID_Y + Constants.SHOP_SPADDULA_OFFSET_Y,
+                shopItemWidth, shopItemHeight);
+        shopJacub = new ShopItem(BearEnum.JACUB, this, Constants.JACUB_NAME,
+                Constants.JACUB_DESCRIPTION, Constants.SHOP_JACUB_PRICE,
+                shopItemX, Constants.GAME_MID_Y + Constants.SHOP_JACUB_OFFSET_Y,
+                shopItemWidth, shopItemHeight);
+        shopTsunder = new ShopItem(BearEnum.TSUNDER, this, Constants.TSUNDER_NAME,
+                Constants.TSUNDER_DESCRIPTION, Constants.SHOP_TSUNDER_PRICE,
+                shopItemX, Constants.GAME_MID_Y + Constants.SHOP_TSUNDER_OFFSET_Y,
+                shopItemWidth, shopItemHeight);
+        shopWolf = new ShopItem(BearEnum.WOLF, this, Constants.WOLF_NAME,
+                Constants.WOLF_DESCRIPTION, Constants.SHOP_WOLF_PRICE,
+                shopItemX, Constants.GAME_MID_Y + Constants.SHOP_WOLF_OFFSET_Y,
+                shopItemWidth, shopItemHeight);
+        shopItems = new ArrayList<ShopItem>();
+        shopItems.add(shopTeddy);
+        shopItems.add(shopSpaddula);
+        shopItems.add(shopJacub);
+        shopItems.add(shopTsunder);
+        shopItems.add(shopWolf);
+
+        itemOnDisplay = null;
+
+        // music
         currentMusic = AssetLoader.menuMusic;
-
+        isMuted = data.getBoolean("isMuted");
         if (isMuted) {
             activeButtons.add(unmuteButton);
         } else {
             activeButtons.add(muteButton);
             currentMusic.play();
+        }
+    }
+
+    public void refreshShopStates() {
+        for (ShopItem item : shopItems) {
+            BearEnum bearType = item.getType();
+            if (bearType == activeBear) {
+                item.setState(ShopItemStateEnum.EQUIPPED);
+            } else if (data.getBoolean(bearType.name)) {
+                item.setState(ShopItemStateEnum.OWNED);
+            } else if (karma >= item.getPrice()) {
+                item.setState(ShopItemStateEnum.AFFORDABLE);
+            } else {
+                item.setState(ShopItemStateEnum.UNOWNED);
+            }
         }
     }
 
@@ -152,6 +217,33 @@ public class GameWorld {
         }
     }
 
+    private void endGame() {
+        endGameTimer = Constants.END_GAME_TIME;
+        InputHandler.touchSection = TouchScreenEnum.NONE;
+        bear.die();
+        saveKarma();
+        if (score > highScore) {
+            setHighScore(score);
+        }
+        currentState = GameStateEnum.GAMEOVER;
+        currentMusic.stop();
+        if (! isMuted) {
+            AssetLoader.gameOverSound.play(0.5f);
+        }
+    }
+
+    public void showPostMenu() {
+        currentState = GameStateEnum.POSTMENU;
+        activeButtons.clear();
+        activeButtons.add(shopButton);
+        activeButtons.add(restartButton);
+        activeButtons.add(backButton);
+        currentMusic = AssetLoader.menuMusic;
+        if (! isMuted && ! currentMusic.isPlaying()) {
+            currentMusic.play();
+        }
+    }
+
     public void goToMenu() {
         currentState = GameStateEnum.MENU;
         scrollHandler.reset();
@@ -160,7 +252,6 @@ public class GameWorld {
         activeButtons.add(helpButton);
         activeButtons.add(creditsButton);
         activeButtons.add(cubButton);
-
         if (isMuted) {
             activeButtons.add(unmuteButton);
         } else {
@@ -168,9 +259,97 @@ public class GameWorld {
         }
     }
 
-    public void update(float delta, float runTime) {
+    public void openShop() {
+        if (currentState == GameStateEnum.MENU) {
+            currentState = GameStateEnum.MENUSHOP;
+        } else if (currentState == GameStateEnum.POSTMENU) {
+            currentState = GameStateEnum.POSTMENUSHOP;
+        }
+
+        if (isShowingItem()) {
+            itemOnDisplay = null;
+        }
+
+        activeButtons.clear();
+        activeButtons.add(shopBackButton);
+        refreshShopStates();
+    }
+
+    public void openCredits() {
+        currentState = GameStateEnum.CREDITS;
+        activeButtons.clear();
+        activeButtons.add(shopBackButton);
+    }
+
+    public void openHelp() {
+        currentState = GameStateEnum.HELP;
+        activeButtons.clear();
+        activeButtons.add(shopBackButton);
+    }
+
+    public void showItem(ShopItem item) {
+        itemOnDisplay = item;
+        float buttonWidth = AssetLoader.backButtonUp.getRegionWidth() * 2.4f;
+        if (item.getState() == ShopItemStateEnum.EQUIPPED) {
+            shopDetailsBackButton.setPosition(Constants.GAME_MID_X - buttonWidth / 2,
+                    Constants.GAME_MID_Y + Constants.SHOP_DETAILS_BUTTON_OFFSET_Y);
+        } else {
+            shopDetailsBackButton.setPosition(
+                    Constants.GAME_MID_X - Constants.SHOP_DETAILS_BUTTON_OFFSET_X - buttonWidth,
+                    Constants.GAME_MID_Y + Constants.SHOP_DETAILS_BUTTON_OFFSET_Y);
+            activeButtons.add(buyButton);
+        }
+        activeButtons.add(shopDetailsBackButton);
+    }
+
+    public ShopItem getItemOnDisplay() {
+        return itemOnDisplay;
+    }
+
+    public boolean isShowingItem() {
+        return itemOnDisplay != null;
+    }
+
+    public void buyItem(ShopItem item) {
+        if (isShowingItem()) {
+            itemOnDisplay = null;
+            if (item.getState() == ShopItemStateEnum.AFFORDABLE) {
+                activeButtons.remove(buyButton);
+            }
+            activeButtons.remove(shopDetailsBackButton);
+        }
+
+        int price = item.getPrice();
+        if (karma < price) {
+            return;
+        }
+
+        karma -= price;
+        BearEnum bearType = item.getType();
+        data.putBoolean(bearType.name, true);
+        data.putInteger("karma", karma);
+        switchBear(bearType);
+    }
+
+    public void switchBear(BearEnum bear) {
+        if (activeBear == bear) {
+            return;
+        }
+
+        activeBear = bear;
+        data.putString("activeBear", bear.name);
+        data.flush();
+        AssetLoader.reloadBear(bear);
+        refreshShopStates();
+    }
+
+    public void update(float delta) {
         switch(currentState) {
             case MENU:
+            case MENUSHOP:
+            case POSTMENUSHOP:
+            case CREDITS:
+            case HELP:
                 updateIdle(delta);
                 break;
             case PLAYING:
@@ -256,31 +435,6 @@ public class GameWorld {
 
     }
 
-    private void endGame() {
-        endGameTimer = Constants.END_GAME_TIME;
-        bear.die();
-        saveKarma();
-        if (score > highScore) {
-            setHighScore(score);
-        }
-        currentState = GameStateEnum.GAMEOVER;
-        currentMusic.stop();
-        if (! isMuted) {
-            AssetLoader.gameOverSound.play(0.5f);
-        }
-    }
-
-    public void showPostMenu() {
-        currentState = GameStateEnum.POSTMENU;
-        activeButtons.add(shopButton);
-        activeButtons.add(restartButton);
-        activeButtons.add(backButton);
-        currentMusic = AssetLoader.menuMusic;
-        if (! isMuted) {
-            currentMusic.play();
-        }
-    }
-
     public int addToScore(int increment) {
         return score += increment;
     }
@@ -337,6 +491,10 @@ public class GameWorld {
         return activeButtons;
     }
 
+    public ArrayList<ShopItem> getShopItems() {
+        return shopItems;
+    }
+
     public boolean getIsMuted() {
         return isMuted;
     }
@@ -373,6 +531,11 @@ public class GameWorld {
         data.putInteger("karma", 0);
         data.putInteger("highScore", 0);
         data.putBoolean("isMuted", false);
+        data.putString("activeBear", Constants.DEFAULT_BEAR.name);
+        for (BearEnum bear : BearEnum.values()) {
+            String name = bear.name;
+            data.putBoolean(name, name.equals(Constants.DEFAULT_BEAR.name));
+        }
         data.flush();
     }
 
