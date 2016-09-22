@@ -388,7 +388,7 @@ public class AssetLoader {
         pickupSound = Gdx.audio.newSound(Gdx.files.internal("pickup.ogg"));
         scoreupSound = Gdx.audio.newSound(Gdx.files.internal("scoreup.wav"));
         clickSound = Gdx.audio.newSound(Gdx.files.internal("click.wav"));
-        noclickSound = Gdx.audio.newSound(Gdx.files.internal("noclick.ogg"));
+        noclickSound = Gdx.audio.newSound(Gdx.files.internal("noclick.wav"));
         paddling1Sound = Gdx.audio.newSound(Gdx.files.internal("paddling1.ogg"));
         paddling2Sound = Gdx.audio.newSound(Gdx.files.internal("paddling2.ogg"));
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("rowYourBoat.mp3"));

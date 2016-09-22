@@ -60,7 +60,7 @@ public class ShopItem {
                     clickSound.play();
                 }
             } else if (! isMuted) {
-                noclickSound.play(0.2f);
+                noclickSound.play();
             }
         }
         return condition && canPress;
