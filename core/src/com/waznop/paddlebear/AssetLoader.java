@@ -171,6 +171,7 @@ public class AssetLoader {
                 data.putBoolean(name, name.equals(Constants.DEFAULT_BEAR.name));
             }
         }
+        data.flush();
 
         // background art
         backgroundLand = new TextureRegion(landSheet, 0, 0, 45, 80);

@@ -10,6 +10,9 @@ public class DesktopLauncher {
 		config.title = "Paddle Bear";
 		config.width = 405;
 		config.height = 720;
+		config.resizable = false;
+		//config.fullscreen = true;
+		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
 		new LwjglApplication(new PBGame(), config);
 	}
 }
