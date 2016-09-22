@@ -263,6 +263,8 @@ public class GameRenderer {
                     titleTextShade.setAlpha(Interpolation.bounceOut.apply(flashTimer));
                 } else if (flashTimer > 3) {
                     titleTextShade.setAlpha(Interpolation.bounceOut.apply(4 - flashTimer));
+                } else {
+                    titleTextShade.setAlpha(1);
                 }
                 titleTextShade.draw(batcher);
                 batcher.draw(titleText, textX, textY, textWidth, textHeight);

@@ -183,6 +183,12 @@ public class GameWorld {
             activeButtons.add(muteButton);
             currentMusic.play();
         }
+
+        if (data.getBoolean("firstTime")) {
+            openHelp();
+            data.putBoolean("firstTime", false);
+            data.flush();
+        }
     }
 
     public void refreshShopStates() {
@@ -531,6 +537,7 @@ public class GameWorld {
         data.putInteger("karma", 0);
         data.putInteger("highScore", 0);
         data.putBoolean("isMuted", false);
+        data.putBoolean("firstTime", true);
         data.putString("activeBear", Constants.DEFAULT_BEAR.name);
         for (BearEnum bear : BearEnum.values()) {
             String name = bear.name;

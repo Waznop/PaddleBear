@@ -2,4 +2,7 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit trunk//EN" "http://google-web-toolkit.googlecode.com/svn/trunk/distro-source/core/src/gwt-module.dtd">
 <module>
 	<source path="com/waznop/paddlebear" />
+	<source path="com/waznop/screens" />
+	<source path="com/waznop/gameobjects" />
+	<source path="com/waznop/gameworld" />
 </module>

@@ -159,6 +159,9 @@ public class AssetLoader {
         if (! data.contains("isMuted")) {
             data.putBoolean("isMuted", false);
         }
+        if (! data.contains("firstTime")) {
+            data.putBoolean("firstTime", true);
+        }
         if (! data.contains("activeBear")) {
             data.putString("activeBear", Constants.DEFAULT_BEAR.name);
         }
