@@ -2,7 +2,7 @@
 
 Google play link: https://play.google.com/store/apps/details?id=com.waznop.paddlebear&hl=en
 
-HTML5 version link: waznop.github.io/PaddleBearWeb/
+HTML5 version link: https://waznop.github.io/PaddleBearWeb/
 
 Paddle Bear is a game that simulates real-life paddling. Players control their bear by tapping on one of the four corners of the screen to paddle front-left, front-right, back-left or back-right.  Timing and coordination are very crucial to its survival, as going off-screen, hitting the lands or the logs all cause sinkage. The goal is to paddle for as long as possible and to collect drowning bear cubs, which can be exchanged for new bears at the shop.
 
