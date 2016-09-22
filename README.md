@@ -1,6 +1,6 @@
 # PaddleBear
 
-Google play link: https://play.google.com/store/apps/details?id=com.waznop.paddlebear&hl=en
+Google play link: https://play.google.com/store/apps/details?id=com.waznop.paddlebear
 
 HTML5 version link: https://waznop.github.io/PaddleBearWeb/
 
