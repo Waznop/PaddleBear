@@ -142,6 +142,36 @@ public class AssetLoader {
     public static Music menuMusic;
     public static Music gameMusic;
 
+    public static void setSizes(float scaledScreenWidth, float scaledScreenHeight) {
+        float whRatio = scaledScreenWidth / scaledScreenHeight;
+        int gameWidth = Constants.GAME_WIDTH;
+        int gameHeight = Constants.GAME_HEIGHT;
+        int screenWidth;
+        int screenHeight;
+        int gameStartX;
+        int gameStartY;
+        if (whRatio < Constants.WH_RATIO) {
+            screenWidth = gameWidth;
+            screenHeight = (int) (screenWidth / whRatio);
+            gameStartX = 0;
+            gameStartY = (screenHeight - gameHeight) / 2;
+        } else {
+            screenHeight = gameHeight;
+            screenWidth = (int) (screenHeight * whRatio);
+            gameStartY = 0;
+            gameStartX = (screenWidth - gameWidth) / 2;
+        }
+        Constants.SCALED_SCREEN_WIDTH = scaledScreenWidth;
+        Constants.SCALED_SCREEN_HEIGHT = scaledScreenHeight;
+        Constants.SCREEN_WIDTH = screenWidth;
+        Constants.SCREEN_HEIGHT = screenHeight;
+        Constants.GAME_SCALE = scaledScreenWidth / screenWidth;
+        Constants.GAME_START_X = gameStartX;
+        Constants.GAME_START_Y = gameStartY;
+        Constants.GAME_MID_X = screenWidth / 2;
+        Constants.GAME_MID_Y = screenHeight / 2;
+    }
+
     public static void load() {
         spriteSheet = new Texture(Gdx.files.internal("spriteSheet.png"));
         spriteSheet2 = new Texture(Gdx.files.internal("spriteSheet2.png"));

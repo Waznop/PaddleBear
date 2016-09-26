@@ -1,11 +1,13 @@
 package com.waznop.paddlebear;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 import com.waznop.gameobjects.Bear;
 import com.waznop.gameobjects.ShopItem;
 import com.waznop.gameobjects.SimpleButton;
-import com.waznop.gameworld.BearEnum;
 import com.waznop.gameworld.GameStateEnum;
 import com.waznop.gameworld.GameWorld;
 
@@ -16,12 +18,16 @@ public class InputHandler implements InputProcessor {
 
     private Bear bear;
     private GameWorld world;
+    private OrthographicCamera cam;
     public static TouchScreenEnum touchSection;
+    private Vector3 touch;
 
-    public InputHandler(GameWorld world) {
+    public InputHandler(GameWorld world, OrthographicCamera cam) {
         this.world = world;
         this.bear = world.getBear();
+        this.cam = cam;
         touchSection = TouchScreenEnum.NONE;
+        touch = new Vector3();
     }
 
     @Override
@@ -84,8 +90,9 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        screenX /= Constants.GAME_SCALE;
-        screenY /= Constants.GAME_SCALE;
+        cam.unproject(touch.set(screenX, screenY, 0));
+        screenX = (int) touch.x;
+        screenY = (int) touch.y;
 
         GameStateEnum state = world.getCurrentState();
 
@@ -139,10 +146,9 @@ public class InputHandler implements InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        screenX /= Constants.GAME_SCALE;
-        screenY /= Constants.GAME_SCALE;
-
-
+        cam.unproject(touch.set(screenX, screenY, 0));
+        screenX = (int) touch.x;
+        screenY = (int) touch.y;
 
         GameStateEnum state = world.getCurrentState();
 

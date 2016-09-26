@@ -75,10 +75,9 @@ public class GameRenderer {
     // font
     private BitmapFont font;
 
-    public GameRenderer(GameWorld world) {
+    public GameRenderer(GameWorld world, OrthographicCamera cam) {
         this.world = world;
-        cam = new OrthographicCamera();
-        cam.setToOrtho(true, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
+        this.cam = cam;
         batcher = new SpriteBatch();
         batcher.setProjectionMatrix(cam.combined);
         shapeRenderer = new ShapeRenderer();
