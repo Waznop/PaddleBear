@@ -20,12 +20,10 @@ public class GameScreen implements Screen {
     private GameRenderer renderer;
     private float runTime;
     private OrthographicCamera cam;
-    //private Viewport viewPort;
 
     public GameScreen() {
         cam = new OrthographicCamera();
         cam.setToOrtho(true, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT);
-        //viewPort = new FitViewport(Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, cam);
         world = new GameWorld();
         renderer = new GameRenderer(world, cam);
         runTime = 0;
@@ -50,9 +48,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        //AssetLoader.setSizes(width, height);
-        //viewPort.update(width, height, true);
-        //cam.update();
+
     }
 
     @Override
