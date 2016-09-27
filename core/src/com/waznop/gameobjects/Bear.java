@@ -170,7 +170,7 @@ public class Bear {
 
     public void onPaddleFrontLeft() {
         la = Constants.LA_FORCE_A;
-        aa = - Constants.AA_FORCE_A;
+        aa = Constants.AA_FORCE_A;
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = true;
         paddlingFront = true;
@@ -179,7 +179,7 @@ public class Bear {
 
     public void onPaddleFrontRight() {
         la = Constants.LA_FORCE_A;
-        aa = Constants.AA_FORCE_A;
+        aa = - Constants.AA_FORCE_A;
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = false;
         paddlingFront = true;
@@ -188,7 +188,7 @@ public class Bear {
 
     public void onPaddleBackLeft() {
         la = Constants.LA_BACK_FORCE_A;
-        aa = Constants.AA_FORCE_A;
+        aa = - Constants.AA_FORCE_A;
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = true;
         paddlingFront = false;
@@ -197,7 +197,7 @@ public class Bear {
 
     public void onPaddleBackRight() {
         la = Constants.LA_BACK_FORCE_A;
-        aa = - Constants.AA_FORCE_A;
+        aa = Constants.AA_FORCE_A;
         paddleTimer = Constants.PADDLE_TIMER_A;
         paddlingLeft = false;
         paddlingFront = false;

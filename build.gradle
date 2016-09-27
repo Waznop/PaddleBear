@@ -16,7 +16,7 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.01'
+    version = '1.02'
     ext {
         appName = "PaddleBear"
         gdxVersion = '1.9.3'
